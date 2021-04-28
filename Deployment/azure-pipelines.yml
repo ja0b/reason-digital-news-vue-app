@@ -45,7 +45,7 @@ steps:
   condition: and (succeeded(), ne(variables.CACHE_RESTORED, 'true'), ne(variables['Build.Reason'], 'PullRequest'))
 
 - powershell: |
-        Write-Host "This value is: $(Pipeline.Workspace)"
+        Write-Host "This value is: $(Pipeline.Workspace) | $(Build.ArtifactStagingDirectory)"
 
 - task: Npm@1
   displayName: 'NPM build assets'
