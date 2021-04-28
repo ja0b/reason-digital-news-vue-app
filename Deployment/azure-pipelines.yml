@@ -41,7 +41,7 @@ steps:
   displayName: 'NPM install packages'
   inputs:
     command: 'install'
-    workingDir: '$(Pipeline.Workspace)'
+    workingDir: '$(Build.ArtifactStagingDirectory)'
   condition: and (succeeded(), ne(variables.CACHE_RESTORED, 'true'), ne(variables['Build.Reason'], 'PullRequest'))
 
 - powershell: |
@@ -52,12 +52,12 @@ steps:
   inputs:
     command: 'custom'
     customCommand: 'run build'
-    workingDir: '$(Pipeline.Workspace)'
+    workingDir: '$(Build.ArtifactStagingDirectory)'
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
 
 - task: ArchiveFiles@2
   inputs:
-    rootFolderOrFile: '$(Pipeline.Workspace)/dist'
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/dist'
     includeRootFolder: false
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
