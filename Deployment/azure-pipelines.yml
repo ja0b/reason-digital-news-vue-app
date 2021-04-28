@@ -14,13 +14,13 @@ trigger:
 pr: none
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: ubuntu-latest
 
 variables:
   frontend: 'reason-digital-news-vue-app'
   CACHE_RESTORED: 'false'
   npm_config_cache: 'reason-digital-news-vue-app\node_modules'
-
+  
 steps:
 - task: NodeTool@0
   inputs:
@@ -30,7 +30,7 @@ steps:
 - task: Cache@2
   displayName: 'Cache NPM packages'
   inputs:
-    key: 'npm | "$(Agent.OS)" | $(frontend)\package-lock.json'
+    key: 'npm | "$(Agent.OS)" | package-lock.json'
     restoreKeys: |
        npm | "$(Agent.OS)"
     cacheHitVar: CACHE_RESTORED
