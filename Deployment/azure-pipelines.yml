@@ -18,7 +18,7 @@ pool:
 
 variables:
   CACHE_RESTORED: 'false'
-  npm_config_cache: 'node_modules'
+  npm_config_cache: '.npm'
   
 steps:
 - task: NodeTool@0
@@ -41,7 +41,6 @@ steps:
   displayName: 'NPM install packages'
   inputs:
     command: 'install'
-    workingDir: '$(Build.ArtifactStagingDirectory)'
   condition: and (succeeded(), ne(variables.CACHE_RESTORED, 'true'), ne(variables['Build.Reason'], 'PullRequest'))
 
 - powershell: |
@@ -52,12 +51,11 @@ steps:
   inputs:
     command: 'custom'
     customCommand: 'run build'
-    workingDir: '$(Build.ArtifactStagingDirectory)'
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
 
 - task: ArchiveFiles@2
   inputs:
-    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/dist'
+    rootFolderOrFile: 'dist'
     includeRootFolder: false
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
