@@ -25,6 +25,7 @@ steps:
   inputs:
     versionSpec: '14.16.1'
   displayName: 'Install Node.js'
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
 
 - task: Cache@2
   displayName: 'Cache NPM packages'
@@ -42,6 +43,9 @@ steps:
     command: 'install'
     workingDir: '$(Pipeline.Workspace)'
   condition: and (succeeded(), ne(variables.CACHE_RESTORED, 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+
+- powershell: |
+        Write-Host "This value is: $(Pipeline.Workspace)"
 
 - task: Npm@1
   displayName: 'NPM build assets'
