@@ -17,9 +17,8 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  frontend: 'reason-digital-news-vue-app'
   CACHE_RESTORED: 'false'
-  npm_config_cache: 'reason-digital-news-vue-app\node_modules'
+  npm_config_cache: 'node_modules'
   
 steps:
 - task: NodeTool@0
@@ -41,7 +40,7 @@ steps:
   displayName: 'NPM install packages'
   inputs:
     command: 'install'
-    workingDir: '$(frontend)'
+    workingDir: '$(Pipeline.Workspace)'
   condition: and (succeeded(), ne(variables.CACHE_RESTORED, 'true'), ne(variables['Build.Reason'], 'PullRequest'))
 
 - task: Npm@1
@@ -49,12 +48,12 @@ steps:
   inputs:
     command: 'custom'
     customCommand: 'run build'
-    workingDir: '$(frontend)'
+    workingDir: '$(Pipeline.Workspace)'
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
 
 - task: ArchiveFiles@2
   inputs:
-    rootFolderOrFile: '$(frontend)/dist'
+    rootFolderOrFile: '$(Pipeline.Workspace)/dist'
     includeRootFolder: false
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
