@@ -16,23 +16,50 @@ pr: none
 pool:
   vmImage: ubuntu-latest
 
+variables:
+  frontend: 'reason-digital-news-vue-app'
+  CACHE_RESTORED: 'false'
+  npm_config_cache: 'reason-digital-news-vue-app\node_modules'
+
 steps:
 - task: NodeTool@0
   inputs:
-    versionSpec: '10.x'
+    versionSpec: '14.16.1'
   displayName: 'Install Node.js'
 
-- script: |
-    npm install
-    npm run build
-  displayName: 'npm install and build'
+- task: Cache@2
+  displayName: 'Cache NPM packages'
+  inputs:
+    key: 'npm | "$(Agent.OS)" | $(frontend)\package-lock.json'
+    restoreKeys: |
+       npm | "$(Agent.OS)"
+    cacheHitVar: CACHE_RESTORED
+    path: $(npm_config_cache)
+  condition: and (succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
+- task: Npm@1
+  displayName: 'NPM install packages'
+  inputs:
+    command: 'install'
+    workingDir: '$(frontend)'
+  condition: and (succeeded(), ne(variables.CACHE_RESTORED, 'true'), ne(variables['Build.Reason'], 'PullRequest'))
+
+- task: Npm@1
+  displayName: 'NPM build assets'
+  inputs:
+    command: 'custom'
+    customCommand: 'run build'
+    workingDir: '$(frontend)'
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
 - task: ArchiveFiles@2
   inputs:
-    rootFolderOrFile: '$(Build.BinariesDirectory)'
-    includeRootFolder: true
+    rootFolderOrFile: '$(frontend)/dist'
+    includeRootFolder: false
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
     replaceExistingArchive: true
+
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
